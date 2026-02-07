@@ -72,7 +72,39 @@
         alert("Erro ao acessar a câmera 😭");
         console.log(err);
       });
-  </script>
+  <script>
+const video = document.getElementById("camera");
+const btn = document.getElementById("btn");
+const canvas = document.getElementById("snapshot");
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
+    video.srcObject = stream;
+  })
+  .catch(err => {
+    alert("Erro ao acessar a câmera 😢");
+    console.log(err);
+  });
+
+btn.addEventListener("click", () => {
+  // define tamanho do canvas igual ao vídeo
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // transforma a foto em imagem para baixar
+  const imageUrl = canvas.toDataURL("image/png");
+
+  // cria link temporário para download
+  const a = document.createElement("a");
+  a.href = imageUrl;
+  a.download = "foto_terceirao.png";
+  a.click();
+});
+</script>
+
 </body>
 
 </html>
