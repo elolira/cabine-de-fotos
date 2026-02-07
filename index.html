@@ -50,12 +50,31 @@
 </div>
 
 <div id="cameraScreen" style="display:none;">
-  <video id="camera" autoplay playsinline></video>
-  <canvas id="snapshot" style="display:none;"></canvas>
-  <button id="btn">Tirar foto</button>
-</div>
+ <video id="camera" autoplay playsinline></video>
+<canvas id="snapshot" style="display:none;"></canvas>
+<button id="btn">Tirar foto</button>
 
 <script>
+const video = document.getElementById("camera");
+const canvas = document.getElementById("snapshot");
+const btn = document.getElementById("btn");
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => { video.srcObject = stream; })
+  .catch(err => { alert("Erro ao acessar câmera"); console.log(err); });
+
+btn.addEventListener("click", () => {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
+  link.download = "teste.png";
+  link.click();
+});
+</script>
+
 const startScreen = document.getElementById("startScreen");
 const cameraScreen = document.getElementById("cameraScreen");
 const startBtn = document.getElementById("startBtn");
