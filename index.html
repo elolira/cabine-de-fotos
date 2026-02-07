@@ -44,13 +44,11 @@
 </head>
 <body>
 
-<!-- Tela de início -->
 <div id="startScreen">
   <h1>📸 Cabine de Fotos • Terceirão</h1>
   <button id="startBtn">Iniciar</button>
 </div>
 
-<!-- Tela da câmera -->
 <div id="cameraScreen" style="display:none;">
   <video id="camera" autoplay playsinline></video>
   <canvas id="snapshot" style="display:none;"></canvas>
@@ -61,38 +59,48 @@
 const startScreen = document.getElementById("startScreen");
 const cameraScreen = document.getElementById("cameraScreen");
 const startBtn = document.getElementById("startBtn");
-
 const video = document.getElementById("camera");
 const canvas = document.getElementById("snapshot");
 const btn = document.getElementById("btn");
 
-// Imagens fixas (substitua pelos links reais da turma e do logo)
 const turmaImg = new Image();
-turmaImg.src = "https://i.imgur.com/WxG5cXK.png"; // Foto provisória da turma
+turmaImg.src = "https://i.imgur.com/WxG5cXK.png"; // foto da turma provisória
+
 const logoImg = new Image();
-logoImg.src = "https://i.imgur.com/zvWTUVu.png"; // Logo provisório
+logoImg.src = "https://i.imgur.com/zvWTUVu.png"; // logo provisório
 
 let fotos = [];
 
+// Esperar as imagens carregarem
+let imgsCarregadas = 0;
+[turmaImg, logoImg].forEach(img=>{
+  img.onload = ()=>{
+    imgsCarregadas++;
+  }
+});
+
 // Iniciar câmera
-startBtn.addEventListener("click", () => {
+startBtn.addEventListener("click", async () => {
   startScreen.style.display = "none";
   cameraScreen.style.display = "flex";
 
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-      video.srcObject = stream;
-    })
-    .catch(err => {
-      alert("Erro ao acessar a câmera 😢\nUse Chrome ou Edge e permita a câmera.");
-      console.log(err);
-    });
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+  } catch(err) {
+    alert("Erro ao acessar a câmera 😢\nUse Chrome ou Edge e permita a câmera.");
+    console.log(err);
+  }
 });
 
 // Tirar foto
 btn.addEventListener("click", () => {
   if(video.videoWidth === 0 || video.videoHeight === 0){
     alert("A câmera ainda não está pronta. Espere 1-2 segundos e tente de novo.");
+    return;
+  }
+  if(imgsCarregadas < 2){
+    alert("As imagens ainda estão carregando. Aguarde 1 segundo.");
     return;
   }
 
@@ -113,21 +121,20 @@ btn.addEventListener("click", () => {
     finalCanvas.height = canvas.height * 4;
     const finalCtx = finalCanvas.getContext("2d");
 
-    fotos.forEach((f, i) => {
+    let carregadas = 0;
+    fotos.forEach((f, i)=>{
       const img = new Image();
       img.src = f;
-      img.onload = () => {
+      img.onload = ()=>{
         finalCtx.drawImage(img, 0, canvas.height * i, canvas.width, canvas.height);
-
-        if(i === fotos.length - 1){
+        carregadas++;
+        if(carregadas === fotos.length){
           const link = document.createElement("a");
           link.href = finalCanvas.toDataURL("image/png");
           link.download = "cabine_4fotos.png";
           link.click();
 
-          fotos = []; // reseta array
-
-          // Volta para tela de início
+          fotos = []; // resetar array
           cameraScreen.style.display = "none";
           startScreen.style.display = "flex";
         }
