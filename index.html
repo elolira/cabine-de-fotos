@@ -1,24 +1,143 @@
-<video id="camera" autoplay playsinline></video>
-<canvas id="snapshot" style="display:none;"></canvas>
-<button id="btn">Tirar foto</button>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Cabine de Fotos • Terceirão</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #6a0dad, #ff69b4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: white;
+  }
+  #startScreen, #cameraScreen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  button {
+    padding: 20px 40px;
+    font-size: 24px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    background: #ffffff;
+    color: #6a0dad;
+    font-weight: bold;
+  }
+  video {
+    width: 90%;
+    max-width: 700px;
+    border-radius: 20px;
+    border: 4px solid white;
+  }
+</style>
+</head>
+<body>
+
+<!-- Tela de início -->
+<div id="startScreen">
+  <h1>📸 Cabine de Fotos • Terceirão</h1>
+  <button id="startBtn">Iniciar</button>
+</div>
+
+<!-- Tela da câmera -->
+<div id="cameraScreen" style="display:none;">
+  <video id="camera" autoplay playsinline></video>
+  <canvas id="snapshot" style="display:none;"></canvas>
+  <button id="btn">Tirar foto</button>
+</div>
 
 <script>
+const startScreen = document.getElementById("startScreen");
+const cameraScreen = document.getElementById("cameraScreen");
+const startBtn = document.getElementById("startBtn");
 const video = document.getElementById("camera");
 const canvas = document.getElementById("snapshot");
 const btn = document.getElementById("btn");
 
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => { video.srcObject = stream; })
-  .catch(err => { alert("Erro ao acessar câmera"); console.log(err); });
+// Substitua pelos links da turma e do logo
+const turmaImg = new Image();
+turmaImg.src = "https://i.imgur.com/WxG5cXK.png"; // foto da turma provisória
+const logoImg = new Image();
+logoImg.src = "https://i.imgur.com/zvWTUVu.png"; // logo provisório
 
+let fotos = [];
+let imgsCarregadas = 0;
+[turmaImg, logoImg].forEach(img=>{
+  img.onload = ()=> imgsCarregadas++;
+});
+
+// Iniciar câmera
+startBtn.addEventListener("click", async () => {
+  startScreen.style.display = "none";
+  cameraScreen.style.display = "flex";
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+  } catch(err) {
+    alert("Erro ao acessar a câmera 😢\nUse Chrome ou Edge e permita a câmera.");
+    console.log(err);
+  }
+});
+
+// Tirar foto
 btn.addEventListener("click", () => {
+  if(video.videoWidth === 0 || video.videoHeight === 0){
+    alert("A câmera ainda não está pronta. Espere 1-2 segundos e tente de novo.");
+    return;
+  }
+  if(imgsCarregadas < 2){
+    alert("As imagens ainda estão carregando. Aguarde 1 segundo.");
+    return;
+  }
+
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const link = document.createElement("a");
-  link.href = canvas.toDataURL("image/png");
-  link.download = "teste.png";
-  link.click();
+  ctx.drawImage(turmaImg, canvas.width/4, canvas.height - 120, canvas.width/2, 100);
+  ctx.drawImage(logoImg, canvas.width - 120, canvas.height - 120, 100, 100);
+
+  fotos.push(canvas.toDataURL("image/png"));
+
+  if(fotos.length === 4){
+    const finalCanvas = document.createElement("canvas");
+    finalCanvas.width = canvas.width;
+    finalCanvas.height = canvas.height * 4;
+    const finalCtx = finalCanvas.getContext("2d");
+
+    let carregadas = 0;
+    fotos.forEach((f,i)=>{
+      const img = new Image();
+      img.src = f;
+      img.onload = ()=>{
+        finalCtx.drawImage(img, 0, canvas.height*i, canvas.width, canvas.height);
+        carregadas++;
+        if(carregadas === fotos.length){
+          const link = document.createElement("a");
+          link.href = finalCanvas.toDataURL("image/png");
+          link.download = "cabine_4fotos.png";
+          link.click();
+
+          fotos = [];
+          cameraScreen.style.display = "none";
+          startScreen.style.display = "flex";
+        }
+      }
+    });
+  }
 });
 </script>
+
+</body>
+</html>
