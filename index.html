@@ -3,67 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <title>Cabine de Fotos • Terceiro fd</title>
-
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: linear-gradient(135deg, #5f0a87, #ff4ecd);
+      background: linear-gradient(135deg, #6a0dad, #ff69b4);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: Arial, sans-serif;
       color: white;
+      font-family: Arial, sans-serif;
       text-align: center;
     }
 
-    .container {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 40px;
+    video {
+      width: 300px;
       border-radius: 20px;
-      width: 90%;
-      max-width: 500px;
-      box-shadow: 0 0 30px rgba(0,0,0,0.6);
-    }
-
-    h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
-
-    p {
-      font-size: 18px;
-      opacity: 0.85;
+      border: 4px solid white;
     }
 
     button {
-      margin-top: 30px;
-      padding: 18px;
-      width: 100%;
-      font-size: 20px;
+      margin-top: 20px;
+      padding: 15px 25px;
+      font-size: 18px;
       border: none;
-      border-radius: 12px;
-      background: #ffffff;
-      color: #5f0a87;
+      border-radius: 25px;
       cursor: pointer;
+      background: #ffffff;
+      color: #6a0dad;
       font-weight: bold;
+    }
+
+    canvas {
+      display: none;
     }
   </style>
 </head>
-
 <body>
-  <h1>Cabine de Fotos do Terceiro fd</h1>
+
+  <h1>📸 Cabine de Fotos do Terceiro fd</h1>
 
   <video id="camera" autoplay playsinline></video>
+  <canvas id="snapshot"></canvas>
 
-  <br><br>
-
-  <button id="btn">Tirar foto</button>
-<canvas id="snapshot" style="display:none;"></canvas>
+  <button id="btn">Tirar fotos</button>
 
   <script>
     const video = document.getElementById("camera");
+    const canvas = document.getElementById("snapshot");
+    const btn = document.getElementById("btn");
 
+    // Pede permissão e abre a câmera
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
@@ -72,40 +63,22 @@
         alert("Erro ao acessar a câmera 😭");
         console.log(err);
       });
-  <script>
-const video = document.getElementById("camera");
-const btn = document.getElementById("btn");
-const canvas = document.getElementById("snapshot");
 
-navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    video.srcObject = stream;
-  })
-  .catch(err => {
-    alert("Erro ao acessar a câmera 😢");
-    console.log(err);
-  });
+    // Tirar foto e baixar
+    btn.addEventListener("click", () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-btn.addEventListener("click", () => {
-  // define tamanho do canvas igual ao vídeo
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  // transforma a foto em imagem para baixar
-  const imageUrl = canvas.toDataURL("image/png");
-
-  // cria link temporário para download
-  const a = document.createElement("a");
-  a.href = imageUrl;
-  a.download = "foto_terceirao.png";
-  a.click();
-});
-</script>
+      // Baixa a imagem
+      const imageUrl = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.href = imageUrl;
+      a.download = "foto_terceirao.png";
+      a.click();
+    });
+  </script>
 
 </body>
-
 </html>
-
