@@ -39,46 +39,63 @@
       display: none;
     }
   </style>
-</head>
-<body>
+</head><body>
 
-  <h1>📸 Cabine de Fotos do Terceiro fd</h1>
+<div id="startScreen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; color:white;">
+  <h1 style="font-size:40px; margin-bottom:20px;">📸 Cabine de Fotos • Terceirão</h1>
+  <button id="startBtn" style="padding:20px 40px; font-size:24px; border:none; border-radius:25px; cursor:pointer; background:#ffffff; color:#6a0dad; font-weight:bold;">
+    Iniciar
+  </button>
+</div>
 
-  <video id="camera" autoplay playsinline></video>
+<div id="cameraScreen" style="display:none; flex-direction:column; align-items:center; justify-content:center; height:100vh; text-align:center; color:white;">
+  <video id="camera" autoplay playsinline style="width:80%; max-width:600px; border-radius:20px; border:4px solid white;"></video>
   <canvas id="snapshot"></canvas>
+  <button id="btn" style="margin-top:20px; padding:15px 30px; font-size:20px; border:none; border-radius:25px; cursor:pointer; background:#ffffff; color:#6a0dad; font-weight:bold;">
+    Tirar foto
+  </button>
+</div>
 
-  <button id="btn">Tirar fotos</button>
+<script>
+  const startScreen = document.getElementById("startScreen");
+  const cameraScreen = document.getElementById("cameraScreen");
+  const startBtn = document.getElementById("startBtn");
 
-  <script>
-    const video = document.getElementById("camera");
-    const canvas = document.getElementById("snapshot");
-    const btn = document.getElementById("btn");
+  const video = document.getElementById("camera");
+  const canvas = document.getElementById("snapshot");
+  const btn = document.getElementById("btn");
 
-    // Pede permissão e abre a câmera
+  // Ao clicar em Iniciar, esconde tela de início e mostra câmera
+  startBtn.addEventListener("click", () => {
+    startScreen.style.display = "none";
+    cameraScreen.style.display = "flex";
+
+    // Pede permissão da câmera quando começar
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
         video.srcObject = stream;
       })
       .catch(err => {
-        alert("Erro ao acessar a câmera 😭");
+        alert("Erro ao acessar a câmera 😢");
         console.log(err);
       });
+  });
 
-    // Tirar foto e baixar
-    btn.addEventListener("click", () => {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  // Tirar foto e baixar
+  btn.addEventListener("click", () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // Baixa a imagem
-      const imageUrl = canvas.toDataURL("image/png");
-      const a = document.createElement("a");
-      a.href = imageUrl;
-      a.download = "foto_terceirao.png";
-      a.click();
-    });
-  </script>
+    const imageUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = imageUrl;
+    a.download = "foto_terceirao.png";
+    a.click();
+  });
+</script>
 
 </body>
+
 </html>
