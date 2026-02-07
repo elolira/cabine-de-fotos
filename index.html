@@ -52,11 +52,27 @@
 </head>
 
 <body>
-  <div class="container">
-    <h1>📸 Cabine de Fotos</h1>
-    <p>Mostra Pedagógica 2026 • Terceiro fd</p>
-    <button>Começar</button>
-  </div>
+  <h1>Cabine de Fotos do Terceirão</h1>
+
+  <video id="camera" autoplay playsinline></video>
+
+  <br><br>
+
+  <button id="btn">Tirar foto</button>
+
+  <script>
+    const video = document.getElementById("camera");
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("Erro ao acessar a câmera 😢");
+        console.log(err);
+      });
+  </script>
 </body>
+
 </html>
 
